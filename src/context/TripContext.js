@@ -6,6 +6,9 @@ import { generateInitialTripData, INITIAL_BUDGET } from "../data/initialTripData
 const TripContext = createContext();
 export const useTrip = () => useContext(TripContext);
 
+// Bump this whenever the data model changes to auto-clear stale localStorage
+const DATA_VERSION = "v3-jul2026";
+
 export const TripProvider = ({ children }) => {
   const [tripData, setTripData]     = useState([]);
   const [expenses, setExpenses]     = useState([]);
@@ -15,6 +18,15 @@ export const TripProvider = ({ children }) => {
 
   // ── Bootstrap ─────────────────────────────────────────────
   useEffect(() => {
+    // Clear stale data if version mismatch
+    const savedVersion = localStorage.getItem("sgDataVersion");
+    if (savedVersion !== DATA_VERSION) {
+      localStorage.removeItem("sgTripData_v2");
+      localStorage.removeItem("sgExpenses");
+      localStorage.removeItem("sgTripBudget");
+      localStorage.setItem("sgDataVersion", DATA_VERSION);
+    }
+
     // Trip schedule
     const saved = localStorage.getItem("sgTripData_v2");
     setTripData(saved ? JSON.parse(saved) : generateInitialTripData());

@@ -4,7 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import styles from "./BottomNavigation.module.css";
 
-/* SVG icon components — no emojis */
+/* SVG Icons — no emojis */
+const TodayIcon = ({ active }) => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.2 : 1.8} strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <polyline points="12 6 12 12 16 14"/>
+  </svg>
+);
+
 const TimelineIcon = ({ active }) => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.2 : 1.8} strokeLinecap="round" strokeLinejoin="round">
     <line x1="8" y1="6" x2="21" y2="6"/>
@@ -32,6 +39,7 @@ const MapIcon = ({ active }) => (
 );
 
 const navItems = [
+  { name: "Today",    path: "/",          Icon: TodayIcon },
   { name: "Timeline", path: "/itinerary", Icon: TimelineIcon },
   { name: "Budget",   path: "/budget",    Icon: BudgetIcon },
   { name: "Map",      path: "/map",       Icon: MapIcon },
