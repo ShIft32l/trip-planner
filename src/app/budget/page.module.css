@@ -1,0 +1,164 @@
+.summaryCard {
+  position: relative;
+  overflow: hidden;
+}
+
+.summaryCard::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.summaryTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.summaryLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.25rem;
+}
+
+.summaryAmount {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+}
+
+.over  { color: var(--accent-danger); }
+.under { color: var(--accent-primary); }
+
+/* Category breakdown */
+.breakdown {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--glass-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.breakdownRow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.breakdownBar {
+  flex: 1;
+  height: 6px;
+  background: var(--glass-border);
+  border-radius: 50px;
+  overflow: hidden;
+}
+
+.breakdownFill {
+  height: 100%;
+  border-radius: 50px;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-neon));
+  transition: width 0.6s ease;
+}
+
+.breakdownAmt {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  min-width: 56px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Expense rows */
+.expenseRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  margin-bottom: 0.6rem;
+}
+
+.expLeft {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.expName {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.expNotes {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.expRight {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.expAmount {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Empty state */
+.empty {
+  text-align: center;
+  padding: 2rem 1.5rem;
+}
+
+/* Category selector grid */
+.catGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.catBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1.5px solid var(--glass-border);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-height: 44px;
+}
+
+.catBtn:hover {
+  border-color: var(--accent-primary);
+  background: rgba(5, 150, 105, 0.05);
+}
+
+.catBtnActive {
+  border-color: var(--accent-primary);
+  background: rgba(5, 150, 105, 0.08);
+  box-shadow: 0 0 0 1px rgba(5, 150, 105, 0.2);
+}

@@ -1,59 +1,261 @@
+export const CATEGORIES = {
+  food:        { label: "Food",        className: "tag-food",        icon: "🍜" },
+  sightseeing: { label: "Sightseeing", className: "tag-sightseeing", icon: "🏙️" },
+  transport:   { label: "Transport",   className: "tag-transport",   icon: "🚆" },
+  hotel:       { label: "Hotel",       className: "tag-hotel",       icon: "🏨" },
+  beach:       { label: "Beach",       className: "tag-beach",       icon: "🏖️" },
+  shopping:    { label: "Shopping",    className: "tag-shopping",    icon: "🛍️" },
+};
+
+const DAILY_BUDGET = 200; // SGD per day
+
 export const generateInitialTripData = () => {
   const today = new Date();
-  
-  // Helper to get a date string for today + offset days
+
   const getDateStr = (offsetDays) => {
     const d = new Date(today);
     d.setDate(today.getDate() + offsetDays);
-    return d.toISOString().split('T')[0]; // YYYY-MM-DD
+    return d.toISOString().split("T")[0];
   };
+
+  const mapsUrl = (query) =>
+    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query + ", Singapore")}`;
 
   return [
     {
       id: "day-1",
       date: getDateStr(0),
-      title: "Ngày 1: Đến Singapore & Khám phá Marina Bay",
+      title: "Day 1: Arrival & Marina Bay",
+      dailyBudget: DAILY_BUDGET,
       activities: [
-        { id: "a1", time: "10:00", endTime: "12:00", title: "Đến sân bay Changi & Nhận phòng", location: "Changi Airport", completed: false },
-        { id: "a2", time: "12:00", endTime: "13:30", title: "Ăn trưa (Cơm gà Hải Nam)", location: "Maxwell Food Centre", completed: false },
-        { id: "a3", time: "14:00", endTime: "17:00", title: "Tham quan Gardens by the Bay", location: "Marina Bay", completed: false },
-        { id: "a4", time: "18:00", endTime: "19:30", title: "Ăn tối & Dạo Marina Bay Sands", location: "Marina Bay Sands", completed: false },
-        { id: "a5", time: "20:00", endTime: "21:00", title: "Xem nhạc nước Spectra Show", location: "Marina Bay Sands", completed: false }
-      ]
+        {
+          id: "a1",
+          time: "10:00", endTime: "12:00",
+          title: "Arrive at Changi Airport & Check-in",
+          location: "Changi Airport",
+          category: "transport",
+          cost: 20,
+          notes: "Take MRT to hotel",
+          completed: false,
+          mapsUrl: mapsUrl("Changi Airport"),
+        },
+        {
+          id: "a2",
+          time: "12:00", endTime: "13:30",
+          title: "Hainanese Chicken Rice Lunch",
+          location: "Maxwell Food Centre",
+          category: "food",
+          cost: 15,
+          notes: "Try Tian Tian stall",
+          completed: false,
+          mapsUrl: mapsUrl("Maxwell Food Centre"),
+        },
+        {
+          id: "a3",
+          time: "14:00", endTime: "17:00",
+          title: "Gardens by the Bay",
+          location: "Marina Bay",
+          category: "sightseeing",
+          cost: 28,
+          notes: "Cloud Forest + Flower Dome",
+          completed: false,
+          mapsUrl: mapsUrl("Gardens by the Bay"),
+        },
+        {
+          id: "a4",
+          time: "18:00", endTime: "19:30",
+          title: "Dinner & Marina Bay Sands Rooftop",
+          location: "Marina Bay Sands",
+          category: "food",
+          cost: 40,
+          notes: "Book skypark tickets in advance",
+          completed: false,
+          mapsUrl: mapsUrl("Marina Bay Sands"),
+        },
+        {
+          id: "a5",
+          time: "20:00", endTime: "21:00",
+          title: "Spectra Light & Water Show",
+          location: "Marina Bay Sands Event Plaza",
+          category: "sightseeing",
+          cost: 0,
+          notes: "Free! Runs every Fri & Sat at 21:30 too",
+          completed: false,
+          mapsUrl: mapsUrl("Marina Bay Sands Event Plaza"),
+        },
+      ],
     },
     {
       id: "day-2",
       date: getDateStr(1),
-      title: "Ngày 2: Vui chơi tại Sentosa",
+      title: "Day 2: Sentosa Island Fun",
+      dailyBudget: DAILY_BUDGET,
       activities: [
-        { id: "b1", time: "08:30", endTime: "09:30", title: "Ăn sáng (Kaya Toast)", location: "Ya Kun Kaya Toast", completed: false },
-        { id: "b2", time: "10:00", endTime: "16:00", title: "Universal Studios Singapore", location: "Sentosa", completed: false },
-        { id: "b3", time: "16:30", endTime: "18:30", title: "Tắm biển Siloso Beach", location: "Sentosa", completed: false },
-        { id: "b4", time: "19:00", endTime: "21:00", title: "Ăn tối & Wings of Time", location: "Sentosa", completed: false }
-      ]
+        {
+          id: "b1",
+          time: "08:30", endTime: "09:30",
+          title: "Kaya Toast Breakfast",
+          location: "Ya Kun Kaya Toast, Raffles Place",
+          category: "food",
+          cost: 10,
+          notes: "Classic SG breakfast",
+          completed: false,
+          mapsUrl: mapsUrl("Ya Kun Kaya Toast Raffles Place"),
+        },
+        {
+          id: "b2",
+          time: "10:00", endTime: "16:00",
+          title: "Universal Studios Singapore",
+          location: "Sentosa",
+          category: "sightseeing",
+          cost: 83,
+          notes: "Book express pass for popular rides",
+          completed: false,
+          mapsUrl: mapsUrl("Universal Studios Singapore"),
+        },
+        {
+          id: "b3",
+          time: "16:30", endTime: "18:30",
+          title: "Siloso Beach & Swim",
+          location: "Siloso Beach, Sentosa",
+          category: "beach",
+          cost: 0,
+          notes: "Free entry, bring sunscreen",
+          completed: false,
+          mapsUrl: mapsUrl("Siloso Beach Sentosa"),
+        },
+        {
+          id: "b4",
+          time: "19:00", endTime: "21:00",
+          title: "Dinner & Wings of Time Show",
+          location: "Beach Station, Sentosa",
+          category: "food",
+          cost: 35,
+          notes: "Wings of Time Standard: $18",
+          completed: false,
+          mapsUrl: mapsUrl("Wings of Time Sentosa"),
+        },
+      ],
     },
     {
       id: "day-3",
       date: getDateStr(2),
-      title: "Ngày 3: Văn hóa & Mua sắm",
+      title: "Day 3: Culture & Shopping",
+      dailyBudget: DAILY_BUDGET,
       activities: [
-        { id: "c1", time: "09:00", endTime: "11:30", title: "Khám phá Chinatown & Chùa Răng Phật", location: "Chinatown", completed: false },
-        { id: "c2", time: "12:00", endTime: "13:30", title: "Ăn trưa Dimsum", location: "Chinatown", completed: false },
-        { id: "c3", time: "14:00", endTime: "16:30", title: "Tham quan Little India & Kampong Glam", location: "Bugis", completed: false },
-        { id: "c4", time: "17:00", endTime: "20:00", title: "Mua sắm tại Orchard Road", location: "Orchard", completed: false },
-        { id: "c5", time: "20:30", endTime: "22:00", title: "Ăn tối lẩu Haidilao", location: "Orchard", completed: false }
-      ]
+        {
+          id: "c1",
+          time: "09:00", endTime: "11:30",
+          title: "Chinatown & Buddha Tooth Relic Temple",
+          location: "Chinatown",
+          category: "sightseeing",
+          cost: 0,
+          notes: "Temple is free to enter",
+          completed: false,
+          mapsUrl: mapsUrl("Buddha Tooth Relic Temple Singapore"),
+        },
+        {
+          id: "c2",
+          time: "12:00", endTime: "13:30",
+          title: "Dim Sum Lunch",
+          location: "Chinatown Complex Food Centre",
+          category: "food",
+          cost: 18,
+          notes: "Hong Kong Tim Sum is popular",
+          completed: false,
+          mapsUrl: mapsUrl("Chinatown Complex Food Centre Singapore"),
+        },
+        {
+          id: "c3",
+          time: "14:00", endTime: "16:30",
+          title: "Little India & Kampong Glam",
+          location: "Bugis",
+          category: "sightseeing",
+          cost: 0,
+          notes: "Sultan Mosque, Arab Street shops",
+          completed: false,
+          mapsUrl: mapsUrl("Kampong Glam Singapore"),
+        },
+        {
+          id: "c4",
+          time: "17:00", endTime: "20:00",
+          title: "Shopping at Orchard Road",
+          location: "Orchard Road",
+          category: "shopping",
+          cost: 80,
+          notes: "ION, Paragon, Ngee Ann City",
+          completed: false,
+          mapsUrl: mapsUrl("Orchard Road Singapore"),
+        },
+        {
+          id: "c5",
+          time: "20:30", endTime: "22:00",
+          title: "Haidilao Hot Pot Dinner",
+          location: "Haidilao, Orchard",
+          category: "food",
+          cost: 45,
+          notes: "Reserve online — wait can be long",
+          completed: false,
+          mapsUrl: mapsUrl("Haidilao Orchard Singapore"),
+        },
+      ],
     },
     {
       id: "day-4",
       date: getDateStr(3),
-      title: "Ngày 4: Tạm biệt Singapore",
+      title: "Day 4: Farewell Singapore",
+      dailyBudget: DAILY_BUDGET,
       activities: [
-        { id: "d1", time: "08:00", endTime: "10:00", title: "Ăn sáng & Check-out", location: "Hotel", completed: false },
-        { id: "d2", time: "10:30", endTime: "13:00", title: "Tham quan Jewel Changi", location: "Changi Airport", completed: false },
-        { id: "d3", time: "13:30", endTime: "14:30", title: "Ăn trưa tại Jewel", location: "Changi Airport", completed: false },
-        { id: "d4", time: "15:00", endTime: "17:00", title: "Bay về nhà", location: "Changi Airport", completed: false }
-      ]
-    }
+        {
+          id: "d1",
+          time: "08:00", endTime: "10:00",
+          title: "Breakfast & Hotel Check-out",
+          location: "Hotel",
+          category: "hotel",
+          cost: 0,
+          notes: "Pack and store luggage at concierge",
+          completed: false,
+          mapsUrl: mapsUrl("Marina Bay Singapore"),
+        },
+        {
+          id: "d2",
+          time: "10:30", endTime: "13:00",
+          title: "Jewel Changi — HSBC Rain Vortex",
+          location: "Jewel Changi Airport",
+          category: "sightseeing",
+          cost: 0,
+          notes: "World's tallest indoor waterfall — free!",
+          completed: false,
+          mapsUrl: mapsUrl("Jewel Changi Airport"),
+        },
+        {
+          id: "d3",
+          time: "13:00", endTime: "14:30",
+          title: "Lunch at Jewel",
+          location: "Jewel Changi Airport",
+          category: "food",
+          cost: 20,
+          notes: "Many options — hawker to fine dining",
+          completed: false,
+          mapsUrl: mapsUrl("Jewel Changi Airport restaurants"),
+        },
+        {
+          id: "d4",
+          time: "15:00", endTime: "17:00",
+          title: "Check-in & Departure Flight",
+          location: "Changi Airport Terminal",
+          category: "transport",
+          cost: 0,
+          notes: "Arrive 2h before departure",
+          completed: false,
+          mapsUrl: mapsUrl("Changi Airport Singapore"),
+        },
+      ],
+    },
   ];
+};
+
+export const INITIAL_BUDGET = {
+  total: 1500, // SGD total trip budget
+  dailyBudget: 200, // SGD per day
 };

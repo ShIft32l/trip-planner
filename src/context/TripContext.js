@@ -1,177 +1,183 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { generateInitialTripData } from '../data/initialTripData';
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { generateInitialTripData, INITIAL_BUDGET } from "../data/initialTripData";
 
 const TripContext = createContext();
-
 export const useTrip = () => useContext(TripContext);
 
 export const TripProvider = ({ children }) => {
-  const [tripData, setTripData] = useState([]);
-  const [budgetData, setBudgetData] = useState([]);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [tripData, setTripData]     = useState([]);
+  const [expenses, setExpenses]     = useState([]);
+  const [tripBudget, setTripBudget] = useState(INITIAL_BUDGET);
+  const [isLoaded, setIsLoaded]     = useState(false);
+  const [darkMode, setDarkMode]     = useState(false);
 
-  // Load from localStorage or initialize
+  // ── Bootstrap ─────────────────────────────────────────────
   useEffect(() => {
-    // Load Trip Data
-    const savedTripData = localStorage.getItem('sgTripData');
-    if (savedTripData) {
-      setTripData(JSON.parse(savedTripData));
-    } else {
-      const initialData = generateInitialTripData();
-      setTripData(initialData);
-      localStorage.setItem('sgTripData', JSON.stringify(initialData));
-    }
+    // Trip schedule
+    const saved = localStorage.getItem("sgTripData_v2");
+    setTripData(saved ? JSON.parse(saved) : generateInitialTripData());
 
-    // Load Budget Data
-    const savedBudgetData = localStorage.getItem('sgBudgetData');
-    if (savedBudgetData) {
-      setBudgetData(JSON.parse(savedBudgetData));
-    } else {
-      const initialBudget = [
-        { id: "1", name: "Vé máy bay", icon: "✈️", amount: 200 },
-        { id: "2", name: "Khách sạn", icon: "🏨", amount: 300 },
-        { id: "3", name: "Vé tham quan", icon: "🎢", amount: 150 },
-        { id: "4", name: "Ăn uống", icon: "🍜", amount: 150 },
-        { id: "5", name: "Di chuyển", icon: "🚆", amount: 50 },
-      ];
-      setBudgetData(initialBudget);
-      localStorage.setItem('sgBudgetData', JSON.stringify(initialBudget));
-    }
+    // Expenses log
+    const savedExp = localStorage.getItem("sgExpenses");
+    setExpenses(savedExp ? JSON.parse(savedExp) : []);
+
+    // Budget config
+    const savedBudget = localStorage.getItem("sgTripBudget");
+    setTripBudget(savedBudget ? JSON.parse(savedBudget) : INITIAL_BUDGET);
+
+    // Theme
+    const theme = localStorage.getItem("sg-theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const isDark = theme ? theme === "dark" : prefersDark;
+    setDarkMode(isDark);
+    document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
 
     setIsLoaded(true);
   }, []);
 
-  // Save to localStorage whenever tripData changes
+  // ── Persist trip data ──────────────────────────────────────
   useEffect(() => {
-    if (isLoaded) {
-      localStorage.setItem('sgTripData', JSON.stringify(tripData));
-    }
+    if (isLoaded) localStorage.setItem("sgTripData_v2", JSON.stringify(tripData));
   }, [tripData, isLoaded]);
 
-  // Save to localStorage whenever budgetData changes
   useEffect(() => {
-    if (isLoaded) {
-      localStorage.setItem('sgBudgetData', JSON.stringify(budgetData));
-    }
-  }, [budgetData, isLoaded]);
+    if (isLoaded) localStorage.setItem("sgExpenses", JSON.stringify(expenses));
+  }, [expenses, isLoaded]);
 
+  useEffect(() => {
+    if (isLoaded) localStorage.setItem("sgTripBudget", JSON.stringify(tripBudget));
+  }, [tripBudget, isLoaded]);
+
+  // ── Theme toggle ───────────────────────────────────────────
+  const toggleDarkMode = () => {
+    const next = !darkMode;
+    setDarkMode(next);
+    document.documentElement.setAttribute("data-theme", next ? "dark" : "light");
+    localStorage.setItem("sg-theme", next ? "dark" : "light");
+  };
+
+  // ── Activity helpers ───────────────────────────────────────
   const toggleActivityCompletion = (dayId, activityId) => {
-    setTripData(prevData => 
-      prevData.map(day => {
-        if (day.id === dayId) {
-          return {
-            ...day,
-            activities: day.activities.map(activity => 
-              activity.id === activityId 
-                ? { ...activity, completed: !activity.completed }
-                : activity
-            )
-          };
-        }
-        return day;
-      })
+    setTripData((prev) =>
+      prev.map((day) =>
+        day.id !== dayId
+          ? day
+          : {
+              ...day,
+              activities: day.activities.map((a) =>
+                a.id === activityId ? { ...a, completed: !a.completed } : a
+              ),
+            }
+      )
     );
   };
 
-  const updateActivity = (dayId, activityId, updatedFields) => {
-    setTripData(prevData => 
-      prevData.map(day => {
-        if (day.id === dayId) {
-          return {
-            ...day,
-            activities: day.activities.map(activity => 
-              activity.id === activityId 
-                ? { ...activity, ...updatedFields }
-                : activity
-            )
-          };
-        }
-        return day;
-      })
+  const updateActivity = (dayId, activityId, fields) => {
+    setTripData((prev) =>
+      prev.map((day) =>
+        day.id !== dayId
+          ? day
+          : {
+              ...day,
+              activities: day.activities.map((a) =>
+                a.id === activityId ? { ...a, ...fields } : a
+              ),
+            }
+      )
     );
   };
 
-  // Real-time tracking logic
-  const getCurrentStatus = () => {
+  // ── Real-time status ───────────────────────────────────────
+  const getCurrentStatus = useCallback(() => {
     const now = new Date();
-    // To test easily, you can override 'now' with a specific date:
-    // const now = new Date("2026-06-25T14:30:00"); 
+    const todayStr = now.toISOString().split("T")[0];
+    const curMin = now.getHours() * 60 + now.getMinutes();
 
-    let currentActivity = null;
-    let nextActivity = null;
-    let previousActivity = null;
-    let todayData = null;
+    let todayData = null, currentActivity = null, nextActivity = null, previousActivity = null;
 
-    const todayStr = now.toISOString().split('T')[0];
-    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    for (const day of tripData) {
+      if (day.date !== todayStr) continue;
+      todayData = day;
 
-    for (let day of tripData) {
-      if (day.date === todayStr) {
-        todayData = day;
-        for (let i = 0; i < day.activities.length; i++) {
-          const activity = day.activities[i];
-          const [startH, startM] = activity.time.split(':').map(Number);
-          const [endH, endM] = activity.endTime.split(':').map(Number);
-          const startMinutes = startH * 60 + startM;
-          const endMinutes = endH * 60 + endM;
+      for (let i = 0; i < day.activities.length; i++) {
+        const act = day.activities[i];
+        const [sh, sm] = act.time.split(":").map(Number);
+        const [eh, em] = act.endTime.split(":").map(Number);
+        const start = sh * 60 + sm;
+        const end   = eh * 60 + em;
 
-          if (currentMinutes >= startMinutes && currentMinutes < endMinutes) {
-            currentActivity = { ...activity, dayId: day.id };
-            previousActivity = i > 0 ? { ...day.activities[i - 1], dayId: day.id } : null;
-            nextActivity = i < day.activities.length - 1 ? { ...day.activities[i + 1], dayId: day.id } : null;
-            break;
-          } else if (currentMinutes < startMinutes && !nextActivity) {
-            // Found the next upcoming activity if we are in free time
-            nextActivity = { ...activity, dayId: day.id };
-            previousActivity = i > 0 ? { ...day.activities[i - 1], dayId: day.id } : null;
-            break; // Stop after finding the first upcoming
-          }
+        if (curMin >= start && curMin < end) {
+          currentActivity  = { ...act, dayId: day.id };
+          previousActivity = i > 0 ? { ...day.activities[i - 1], dayId: day.id } : null;
+          nextActivity     = i < day.activities.length - 1 ? { ...day.activities[i + 1], dayId: day.id } : null;
+          break;
+        } else if (curMin < start && !nextActivity) {
+          nextActivity     = { ...act, dayId: day.id };
+          previousActivity = i > 0 ? { ...day.activities[i - 1], dayId: day.id } : null;
+          break;
         }
-        
-        // If all activities for today are past
-        if (!currentActivity && !nextActivity && day.activities.length > 0) {
-           const lastIdx = day.activities.length - 1;
-           const [endH, endM] = day.activities[lastIdx].endTime.split(':').map(Number);
-           if (currentMinutes >= endH * 60 + endM) {
-              previousActivity = { ...day.activities[lastIdx], dayId: day.id };
-           }
-        }
-        break; // Found today, stop checking other days
       }
+
+      if (!currentActivity && !nextActivity && day.activities.length > 0) {
+        const last = day.activities[day.activities.length - 1];
+        const [eh, em] = last.endTime.split(":").map(Number);
+        if (curMin >= eh * 60 + em) {
+          previousActivity = { ...last, dayId: day.id };
+        }
+      }
+      break;
     }
 
     return { todayData, currentActivity, nextActivity, previousActivity };
+  }, [tripData]);
+
+  // ── Expense helpers ────────────────────────────────────────
+  const addExpense = (expense) => {
+    setExpenses((prev) => [
+      { ...expense, id: Date.now().toString(), createdAt: new Date().toISOString() },
+      ...prev,
+    ]);
   };
 
-  // Budget Management Functions
-  const addBudgetItem = (item) => {
-    setBudgetData(prev => [...prev, { ...item, id: Date.now().toString() }]);
+  const deleteExpense = (id) => {
+    setExpenses((prev) => prev.filter((e) => e.id !== id));
   };
 
-  const updateBudgetItem = (id, updatedFields) => {
-    setBudgetData(prev => prev.map(item => item.id === id ? { ...item, ...updatedFields } : item));
-  };
+  const totalSpent = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
 
-  const deleteBudgetItem = (id) => {
-    setBudgetData(prev => prev.filter(item => item.id !== id));
-  };
+  // ── Budget helpers ─────────────────────────────────────────
+  // Legacy — kept for backwards compat, map to expenses
+  const addBudgetItem = (item) => addExpense({ ...item, name: item.name, amount: item.amount });
+  const deleteBudgetItem = (id) => deleteExpense(id);
+  const updateBudgetItem = (id, fields) =>
+    setExpenses((prev) => prev.map((e) => (e.id === id ? { ...e, ...fields } : e)));
 
   return (
-    <TripContext.Provider value={{ 
-      tripData, 
-      setTripData, 
-      budgetData,
-      setBudgetData,
-      isLoaded, 
-      toggleActivityCompletion, 
-      updateActivity,
-      getCurrentStatus,
-      addBudgetItem,
-      updateBudgetItem,
-      deleteBudgetItem
-    }}>
+    <TripContext.Provider
+      value={{
+        tripData,
+        setTripData,
+        expenses,
+        tripBudget,
+        setTripBudget,
+        totalSpent,
+        isLoaded,
+        darkMode,
+        toggleDarkMode,
+        toggleActivityCompletion,
+        updateActivity,
+        getCurrentStatus,
+        addExpense,
+        deleteExpense,
+        // Legacy compat
+        budgetData: expenses,
+        addBudgetItem,
+        updateBudgetItem,
+        deleteBudgetItem,
+      }}
+    >
       {children}
     </TripContext.Provider>
   );

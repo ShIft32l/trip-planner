@@ -1,26 +1,28 @@
-import { Outfit } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { TripProvider } from "../context/TripContext";
 import BottomNavigation from "../components/BottomNavigation";
+import ThemeProvider from "../components/ThemeProvider";
 
-const outfit = Outfit({
+const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-outfit",
+  variable: "--font-inter",
+  display: "swap",
 });
 
 export const metadata = {
-  title: "SG Trip Planner",
-  description: "Real-time trip planner for Singapore",
+  title: "SG Trip Tracker",
+  description: "Your Singapore adventure, beautifully tracked.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
     title: "SG Trip",
   },
 };
 
 export const viewport = {
-  themeColor: "#000000",
+  themeColor: "#059669",
   width: "device-width",
   initialScale: 1,
   minimumScale: 1,
@@ -29,14 +31,14 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={outfit.variable}>
+    <html lang="en" className={inter.variable} data-scroll-behavior="smooth" suppressHydrationWarning>
       <body>
-        <TripProvider>
-          <div style={{ paddingBottom: '80px' }}>
+        <ThemeProvider>
+          <TripProvider>
             {children}
-          </div>
-          <BottomNavigation />
-        </TripProvider>
+            <BottomNavigation />
+          </TripProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

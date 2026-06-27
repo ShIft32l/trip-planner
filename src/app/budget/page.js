@@ -1,170 +1,261 @@
 "use client";
 
-import { useState } from 'react';
-import { useTrip } from '../../context/TripContext';
+import { useState } from "react";
+import { useTrip } from "../../context/TripContext";
+import { CATEGORIES } from "../../data/initialTripData";
+import styles from "./page.module.css";
+
+/* SVG icons */
+const PlusIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+  </svg>
+);
+const TrashIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+  </svg>
+);
+const CloseIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+  </svg>
+);
+
+const CATEGORY_LIST = Object.entries(CATEGORIES).map(([key, val]) => ({ key, ...val }));
+
+const fmt = (n) => `S$${Number(n).toFixed(2)}`;
+const fmtShort = (n) => `S$${Number(n).toLocaleString()}`;
 
 export default function BudgetPage() {
-  const { budgetData, isLoaded, addBudgetItem, updateBudgetItem, deleteBudgetItem } = useTrip();
-  const [isEditing, setIsEditing] = useState(false);
-  const [newItem, setNewItem] = useState({ name: '', amount: '', icon: '💵', date: '', description: '' });
+  const { expenses, addExpense, deleteExpense, tripBudget, totalSpent, isLoaded } = useTrip();
+  const [showModal, setShowModal] = useState(false);
+  const [form, setForm] = useState({ name: "", amount: "", category: "food", notes: "" });
 
   if (!isLoaded) {
-    return <div className="container" style={{ textAlign: 'center', marginTop: '50px' }}>Loading...</div>;
+    return (
+      <div className="loading-screen">
+        <div className="loading-spinner" />
+      </div>
+    );
   }
 
-  const total = budgetData.reduce((sum, item) => sum + Number(item.amount), 0);
-  // Estimate exchange rate (SGD to VND roughly 18500 or USD to VND roughly 25000)
-  // Let's assume the currency is USD for the sake of the initial design
-  const totalVND = total * 25000;
+  const { total: totalBudget } = tripBudget;
+  const remaining = totalBudget - totalSpent;
+  const pct = Math.min(100, Math.round((totalSpent / totalBudget) * 100));
 
   const handleAdd = (e) => {
     e.preventDefault();
-    if (newItem.name && newItem.amount) {
-      addBudgetItem({ ...newItem, amount: Number(newItem.amount) });
-      setNewItem({ name: '', amount: '', icon: '💵', date: '', description: '' });
-    }
+    if (!form.name || !form.amount) return;
+    addExpense({ name: form.name, amount: parseFloat(form.amount), category: form.category, notes: form.notes });
+    setForm({ name: "", amount: "", category: "food", notes: "" });
+    setShowModal(false);
   };
 
   return (
-    <main className="container animate-fade-in">
-      <header style={{ marginBottom: '2rem', marginTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <h1 style={{ fontSize: '2rem', color: 'var(--text-primary)' }}>Ngân sách</h1>
-          <p style={{ color: 'var(--text-secondary)' }}>Theo dõi chi tiêu chuyến đi</p>
-        </div>
-        <button 
-          onClick={() => setIsEditing(!isEditing)}
-          style={{ 
-            color: isEditing ? 'var(--bg-primary)' : 'white', 
-            backgroundColor: isEditing ? 'var(--text-primary)' : 'var(--accent-primary)',
-            padding: '8px 16px',
-            borderRadius: '20px',
-            fontWeight: 600,
-            transition: 'all 0.2s ease'
-          }}
-        >
-          {isEditing ? 'Xong' : 'Sửa'}
-        </button>
-      </header>
+    <>
+      <main className="container animate-fade-in">
+        {/* Header */}
+        <header className="page-header" style={{ marginTop: "1rem", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+          <div>
+            <h1 className="page-title neon-text">Budget</h1>
+            <p className="page-subtitle">Singapore Trip Spend</p>
+          </div>
+          <button
+            id="add-expense-btn"
+            className="btn btn-neon"
+            onClick={() => setShowModal(true)}
+            aria-label="Add expense"
+            style={{ borderRadius: "50px", padding: "0.65rem 1.1rem", gap: "0.35rem", fontSize: "0.85rem" }}
+          >
+            <PlusIcon /> Add
+          </button>
+        </header>
 
-      <div className="glass-card">
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <p style={{ color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Tổng chi tiêu dự kiến</p>
-          <h2 style={{ fontSize: '2.5rem', color: 'var(--accent-secondary)' }}>${total.toLocaleString()}</h2>
-          <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>~ {totalVND.toLocaleString()} VNĐ</p>
-        </div>
-
-        <div>
-          <h3 style={{ marginBottom: '1rem', paddingBottom: '0.5rem', borderBottom: '1px solid var(--glass-border)' }}>Danh mục</h3>
-          
-          {budgetData.map((item) => (
-            <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem', padding: '8px 0', borderBottom: isEditing ? '1px dashed var(--glass-border)' : 'none' }}>
-              {isEditing ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1, marginRight: '1rem' }}>
-                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                    <input 
-                      type="text" 
-                      value={item.icon || ''} 
-                      onChange={e => updateBudgetItem(item.id, { icon: e.target.value })}
-                      style={{ width: '40px', padding: '4px', borderRadius: '4px', border: '1px solid var(--glass-border)', background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
-                    />
-                    <input 
-                      type="text" 
-                      value={item.name} 
-                      onChange={e => updateBudgetItem(item.id, { name: e.target.value })}
-                      style={{ flex: 1, padding: '4px 8px', borderRadius: '4px', border: '1px solid var(--glass-border)', background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
-                    />
-                    <input 
-                      type="number" 
-                      value={item.amount} 
-                      onChange={e => updateBudgetItem(item.id, { amount: Number(e.target.value) })}
-                      style={{ width: '70px', padding: '4px 8px', borderRadius: '4px', border: '1px solid var(--glass-border)', background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
-                    />
-                    <button onClick={() => deleteBudgetItem(item.id)} style={{ color: 'var(--accent-danger)' }}>🗑️</button>
-                  </div>
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <input 
-                      type="date" 
-                      value={item.date || ''} 
-                      onChange={e => updateBudgetItem(item.id, { date: e.target.value })}
-                      style={{ flex: 1, padding: '4px 8px', borderRadius: '4px', border: '1px solid var(--glass-border)', background: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
-                    />
-                    <input 
-                      type="text" 
-                      value={item.description || ''} 
-                      placeholder="Mô tả..."
-                      onChange={e => updateBudgetItem(item.id, { description: e.target.value })}
-                      style={{ flex: 2, padding: '4px 8px', borderRadius: '4px', border: '1px solid var(--glass-border)', background: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
-                    />
-                  </div>
-                </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span>{item.icon} {item.name}</span>
-                    <span style={{ fontWeight: 600 }}>${item.amount.toLocaleString()}</span>
-                  </div>
-                  {(item.date || item.description) && (
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '4px', marginLeft: '24px', display: 'flex', gap: '10px' }}>
-                      {item.date && <span>📅 {item.date}</span>}
-                      {item.description && <span>📝 {item.description}</span>}
-                    </div>
-                  )}
-                </div>
-              )}
+        {/* === Summary Card === */}
+        <div className={`glass-card ${styles.summaryCard}`}>
+          <div className={styles.summaryTop}>
+            <div>
+              <p className={styles.summaryLabel}>Total Spent</p>
+              <p className={styles.summaryAmount}>{fmtShort(totalSpent)}</p>
             </div>
-          ))}
+            <div style={{ textAlign: "right" }}>
+              <p className={styles.summaryLabel}>Remaining</p>
+              <p className={`${styles.summaryAmount} ${remaining < 0 ? styles.over : styles.under}`}>
+                {remaining < 0 ? "-" : ""}{fmtShort(Math.abs(remaining))}
+              </p>
+            </div>
+          </div>
 
-          {isEditing && (
-            <form onSubmit={handleAdd} style={{ marginTop: '1.5rem', padding: '1rem', background: 'var(--bg-primary)', borderRadius: '8px' }}>
-              <h4 style={{ marginBottom: '0.5rem', fontSize: '0.9rem' }}>Thêm mục mới</h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <input 
-                    type="text" 
-                    value={newItem.icon} 
-                    onChange={e => setNewItem({...newItem, icon: e.target.value})}
-                    placeholder="Icon"
-                    style={{ width: '40px', padding: '6px', borderRadius: '4px', border: '1px solid var(--glass-border)', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
-                  />
-                  <input 
-                    type="text" 
-                    value={newItem.name} 
-                    onChange={e => setNewItem({...newItem, name: e.target.value})}
-                    placeholder="Tên danh mục"
-                    required
-                    style={{ flex: 1, padding: '6px 8px', borderRadius: '4px', border: '1px solid var(--glass-border)', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
-                  />
-                  <input 
-                    type="number" 
-                    value={newItem.amount} 
-                    onChange={e => setNewItem({...newItem, amount: e.target.value})}
-                    placeholder="$"
-                    required
-                    style={{ width: '70px', padding: '6px 8px', borderRadius: '4px', border: '1px solid var(--glass-border)', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
-                  />
-                </div>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <input 
-                    type="date" 
-                    value={newItem.date} 
-                    onChange={e => setNewItem({...newItem, date: e.target.value})}
-                    style={{ flex: 1, padding: '6px 8px', borderRadius: '4px', border: '1px solid var(--glass-border)', background: 'var(--bg-secondary)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
-                  />
-                  <input 
-                    type="text" 
-                    value={newItem.description} 
-                    onChange={e => setNewItem({...newItem, description: e.target.value})}
-                    placeholder="Mô tả..."
-                    style={{ flex: 2, padding: '6px 8px', borderRadius: '4px', border: '1px solid var(--glass-border)', background: 'var(--bg-secondary)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
-                  />
-                  <button type="submit" style={{ padding: '6px 12px', background: 'var(--accent-secondary)', color: 'white', borderRadius: '4px', fontWeight: 'bold' }}>+</button>
-                </div>
-              </div>
-            </form>
+          {/* Progress bar */}
+          <div style={{ marginTop: "1rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.4rem" }}>
+              <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
+                {fmtShort(totalSpent)} of {fmtShort(totalBudget)} total budget
+              </span>
+              <span style={{ fontSize: "0.8rem", fontWeight: 700, color: pct > 90 ? "var(--accent-danger)" : "var(--accent-primary)" }}>
+                {pct}%
+              </span>
+            </div>
+            <div className="progress-bar-track">
+              <div
+                className="progress-bar-fill"
+                style={{
+                  width: `${pct}%`,
+                  background: pct > 90
+                    ? "linear-gradient(90deg, #ef4444, #f97316)"
+                    : undefined,
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Category breakdown */}
+          {expenses.length > 0 && (
+            <div className={styles.breakdown}>
+              {CATEGORY_LIST.map(({ key, label }) => {
+                const catTotal = expenses.filter((e) => e.category === key).reduce((s, e) => s + Number(e.amount), 0);
+                if (catTotal === 0) return null;
+                const catPct = Math.round((catTotal / totalSpent) * 100);
+                return (
+                  <div key={key} className={styles.breakdownRow}>
+                    <span className={`tag tag-${key}`}>{label}</span>
+                    <div className={styles.breakdownBar}>
+                      <div className={styles.breakdownFill} style={{ width: `${catPct}%` }} />
+                    </div>
+                    <span className={styles.breakdownAmt}>{fmt(catTotal)}</span>
+                  </div>
+                );
+              })}
+            </div>
           )}
         </div>
-      </div>
-    </main>
+
+        {/* === Recent Expenses === */}
+        <section style={{ marginTop: "1.5rem" }}>
+          <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "1rem" }}>
+            Recent Expenses
+          </h2>
+
+          {expenses.length === 0 ? (
+            <div className={`glass-card ${styles.empty}`}>
+              <p style={{ color: "var(--text-muted)", textAlign: "center" }}>
+                No expenses yet — tap <strong>Add</strong> to log your first spend!
+              </p>
+            </div>
+          ) : (
+            <div className="stagger">
+              {expenses.map((exp) => {
+                const cat = CATEGORIES[exp.category] || CATEGORIES.sightseeing;
+                return (
+                  <div key={exp.id} className={`glass-card ${styles.expenseRow} animate-fade-in`}>
+                    <div className={styles.expLeft}>
+                      <p className={styles.expName}>{exp.name}</p>
+                      {exp.notes && <p className={styles.expNotes}>{exp.notes}</p>}
+                      <span className={`tag tag-${exp.category || "sightseeing"}`}>{cat.label}</span>
+                    </div>
+                    <div className={styles.expRight}>
+                      <p className={styles.expAmount}>{fmt(exp.amount)}</p>
+                      <button
+                        onClick={() => deleteExpense(exp.id)}
+                        className="btn btn-danger"
+                        aria-label={`Delete ${exp.name}`}
+                        id={`del-exp-${exp.id}`}
+                        style={{ padding: "0.4rem", minHeight: 36, borderRadius: 8 }}
+                      >
+                        <TrashIcon />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
+      </main>
+
+      {/* === Add Expense Modal === */}
+      {showModal && (
+        <div className="modal-overlay" onClick={() => setShowModal(false)} id="expense-modal-overlay">
+          <div className="modal-sheet" onClick={(e) => e.stopPropagation()} id="expense-modal">
+            <div className="modal-handle" />
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem" }}>
+              <h2 style={{ fontSize: "1.1rem", fontWeight: 700 }}>Log Expense</h2>
+              <button onClick={() => setShowModal(false)} style={{ color: "var(--text-muted)", cursor: "pointer", padding: "4px" }} aria-label="Close">
+                <CloseIcon />
+              </button>
+            </div>
+
+            <form onSubmit={handleAdd} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+              {/* Amount */}
+              <div>
+                <label className="form-label" htmlFor="exp-amount">Amount (SGD)</label>
+                <input
+                  id="exp-amount"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="0.00"
+                  required
+                  value={form.amount}
+                  onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                  className="form-input"
+                  style={{ fontSize: "1.5rem", fontWeight: 700, textAlign: "center" }}
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="form-label" htmlFor="exp-name">Description</label>
+                <input
+                  id="exp-name"
+                  type="text"
+                  placeholder="What did you spend on?"
+                  required
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  className="form-input"
+                />
+              </div>
+
+              {/* Category */}
+              <div>
+                <label className="form-label">Category</label>
+                <div className={styles.catGrid}>
+                  {CATEGORY_LIST.map(({ key, label }) => (
+                    <button
+                      key={key}
+                      type="button"
+                      id={`cat-${key}`}
+                      className={`${styles.catBtn} ${form.category === key ? styles.catBtnActive : ""}`}
+                      onClick={() => setForm({ ...form, category: key })}
+                    >
+                      <span className={`tag tag-${key}`}>{label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Notes */}
+              <div>
+                <label className="form-label" htmlFor="exp-notes">Notes (optional)</label>
+                <input
+                  id="exp-notes"
+                  type="text"
+                  placeholder="e.g. Marina Bay Sands restaurant"
+                  value={form.notes}
+                  onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                  className="form-input"
+                />
+              </div>
+
+              <button type="submit" className="btn btn-primary" id="submit-expense-btn" style={{ width: "100%", marginTop: "0.5rem", borderRadius: "12px" }}>
+                Save Expense
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

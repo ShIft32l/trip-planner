@@ -1,0 +1,136 @@
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius);
+}
+
+.filterRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.filterLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+  min-width: 42px;
+}
+
+.pills {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.pill {
+  padding: 0.3rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid var(--glass-border);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-height: 32px;
+}
+
+.pill:hover {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.pillActive {
+  background: rgba(5, 150, 105, 0.12);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+/* Location cards */
+.locationCard {
+  margin-bottom: 0.75rem;
+  padding: 1rem 1.1rem;
+  cursor: default;
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.dayTag {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 50px;
+  background: rgba(168, 85, 247, 0.1);
+  color: var(--accent-neon);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.locationTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.4rem;
+  line-height: 1.35;
+}
+
+.locationRow {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.locationName {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.timeText {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.bottomRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.costChip {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  background: var(--glass-border);
+  padding: 0.25rem 0.65rem;
+  border-radius: 50px;
+}
+
+.costFree {
+  color: var(--accent-primary);
+  background: rgba(5, 150, 105, 0.1);
+}
