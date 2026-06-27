@@ -7,50 +7,37 @@
 
 :root {
   /* === COLOR PALETTE: Light Mode === */
-  --bg-primary:       #f0f7f4;
+  --bg-primary:       #f0f9ff;   /* sky-50 */
   --bg-secondary:     #ffffff;
   --bg-card:          rgba(255, 255, 255, 0.85);
   --bg-card-solid:    #ffffff;
 
-  --text-primary:     #0d1f1a;
-  --text-secondary:   #4a6358;
-  --text-muted:       #7a9688;
-
-  /* Emerald greens */
-  --emerald-50:       #ecfdf5;
-  --emerald-100:      #d1fae5;
-  --emerald-500:      #10b981;
-  --emerald-600:      #059669;
-  --emerald-700:      #047857;
-  --emerald-900:      #064e3b;
-
-  /* Orchid / Purple accents */
-  --orchid-400:       #c084fc;
-  --orchid-500:       #a855f7;
-  --orchid-600:       #9333ea;
+  --text-primary:     #0f172a;   /* slate-900 */
+  --text-secondary:   #334155;   /* slate-700 */
+  --text-muted:       #64748b;   /* slate-500 */
 
   /* Semantic */
-  --accent-primary:   #059669;   /* emerald-600 */
-  --accent-neon:      #a855f7;   /* orchid-500 */
+  --accent-primary:   #0284c7;   /* sky-600 */
+  --accent-neon:      #db2777;   /* pink-600 */
   --accent-warning:   #f59e0b;
   --accent-danger:    #ef4444;
   --accent-success:   #22c55e;
 
   /* Glass */
   --glass-bg:         rgba(255, 255, 255, 0.80);
-  --glass-border:     rgba(5, 150, 105, 0.18);
-  --glass-shadow:     0 8px 32px rgba(5, 150, 105, 0.10);
+  --glass-border:     rgba(2, 132, 199, 0.18);
+  --glass-shadow:     0 8px 32px rgba(2, 132, 199, 0.10);
   --glass-blur:       blur(16px);
 
   /* Tags */
   --tag-food-bg:      rgba(245, 158, 11, 0.12);
   --tag-food-text:    #b45309;
-  --tag-sight-bg:     rgba(168, 85, 247, 0.12);
-  --tag-sight-text:   #7c3aed;
-  --tag-transport-bg: rgba(5, 150, 105, 0.12);
-  --tag-transport-text:#047857;
-  --tag-hotel-bg:     rgba(59, 130, 246, 0.12);
-  --tag-hotel-text:   #1d4ed8;
+  --tag-sight-bg:     rgba(219, 39, 119, 0.12);
+  --tag-sight-text:   #be185d;
+  --tag-transport-bg: rgba(2, 132, 199, 0.12);
+  --tag-transport-text:#0369a1;
+  --tag-hotel-bg:     rgba(139, 92, 246, 0.12);
+  --tag-hotel-text:   #6d28d9;
   --tag-beach-bg:     rgba(6, 182, 212, 0.12);
   --tag-beach-text:   #0e7490;
   --tag-shop-bg:      rgba(244, 63, 94, 0.12);
@@ -64,36 +51,36 @@
   --transition:       0.2s ease;
 
   /* Glow */
-  --glow-emerald:     0 0 20px rgba(5, 150, 105, 0.35);
-  --glow-orchid:      0 0 20px rgba(168, 85, 247, 0.35);
+  --glow-emerald:     0 0 20px rgba(2, 132, 199, 0.35); /* Using blue here but keeping var name */
+  --glow-orchid:      0 0 20px rgba(219, 39, 119, 0.35); /* Using pink here but keeping var name */
 }
 
 /* === DARK MODE: manual toggle via data-theme === */
 [data-theme="dark"] {
-  --bg-primary:       #060f0c;
-  --bg-secondary:     #0d1f1a;
-  --bg-card:          rgba(13, 31, 26, 0.85);
-  --bg-card-solid:    #0d1f1a;
+  --bg-primary:       #09090b;   /* zinc-950 */
+  --bg-secondary:     #18181b;   /* zinc-900 */
+  --bg-card:          rgba(24, 24, 27, 0.85);
+  --bg-card-solid:    #18181b;
 
-  --text-primary:     #e8f5f0;
-  --text-secondary:   #7ab89e;
-  --text-muted:       #4a7a62;
+  --text-primary:     #f8fafc;
+  --text-secondary:   #94a3b8;
+  --text-muted:       #64748b;
 
-  --accent-primary:   #34d399;
-  --accent-neon:      #c084fc;
+  --accent-primary:   #38bdf8;   /* sky-400 */
+  --accent-neon:      #f472b6;   /* pink-400 */
 
-  --glass-bg:         rgba(13, 31, 26, 0.80);
-  --glass-border:     rgba(52, 211, 153, 0.15);
+  --glass-bg:         rgba(24, 24, 27, 0.80);
+  --glass-border:     rgba(56, 189, 248, 0.15);
   --glass-shadow:     0 8px 32px rgba(0, 0, 0, 0.40);
 
   --tag-food-bg:      rgba(245, 158, 11, 0.18);
   --tag-food-text:    #fbbf24;
-  --tag-sight-bg:     rgba(192, 132, 252, 0.18);
-  --tag-sight-text:   #c084fc;
-  --tag-transport-bg: rgba(52, 211, 153, 0.15);
-  --tag-transport-text:#34d399;
-  --tag-hotel-bg:     rgba(96, 165, 250, 0.15);
-  --tag-hotel-text:   #60a5fa;
+  --tag-sight-bg:     rgba(244, 114, 182, 0.18);
+  --tag-sight-text:   #f472b6;
+  --tag-transport-bg: rgba(56, 189, 248, 0.15);
+  --tag-transport-text:#38bdf8;
+  --tag-hotel-bg:     rgba(167, 139, 250, 0.15);
+  --tag-hotel-text:   #a78bfa;
   --tag-beach-bg:     rgba(34, 211, 238, 0.15);
   --tag-beach-text:   #22d3ee;
   --tag-shop-bg:      rgba(251, 113, 133, 0.15);
@@ -103,30 +90,30 @@
 /* === DARK MODE: OS preference (when no data-theme set) === */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]):not([data-theme="dark"]) {
-    --bg-primary:       #060f0c;
-    --bg-secondary:     #0d1f1a;
-    --bg-card:          rgba(13, 31, 26, 0.85);
-    --bg-card-solid:    #0d1f1a;
+    --bg-primary:       #09090b;
+    --bg-secondary:     #18181b;
+    --bg-card:          rgba(24, 24, 27, 0.85);
+    --bg-card-solid:    #18181b;
 
-    --text-primary:     #e8f5f0;
-    --text-secondary:   #7ab89e;
-    --text-muted:       #4a7a62;
+    --text-primary:     #f8fafc;
+    --text-secondary:   #94a3b8;
+    --text-muted:       #64748b;
 
-    --accent-primary:   #34d399;
-    --accent-neon:      #c084fc;
+    --accent-primary:   #38bdf8;
+    --accent-neon:      #f472b6;
 
-    --glass-bg:         rgba(13, 31, 26, 0.80);
-    --glass-border:     rgba(52, 211, 153, 0.15);
+    --glass-bg:         rgba(24, 24, 27, 0.80);
+    --glass-border:     rgba(56, 189, 248, 0.15);
     --glass-shadow:     0 8px 32px rgba(0, 0, 0, 0.40);
 
     --tag-food-bg:      rgba(245, 158, 11, 0.18);
     --tag-food-text:    #fbbf24;
-    --tag-sight-bg:     rgba(192, 132, 252, 0.18);
-    --tag-sight-text:   #c084fc;
-    --tag-transport-bg: rgba(52, 211, 153, 0.15);
-    --tag-transport-text:#34d399;
-    --tag-hotel-bg:     rgba(96, 165, 250, 0.15);
-    --tag-hotel-text:   #60a5fa;
+    --tag-sight-bg:     rgba(244, 114, 182, 0.18);
+    --tag-sight-text:   #f472b6;
+    --tag-transport-bg: rgba(56, 189, 248, 0.15);
+    --tag-transport-text:#38bdf8;
+    --tag-hotel-bg:     rgba(167, 139, 250, 0.15);
+    --tag-hotel-text:   #a78bfa;
     --tag-beach-bg:     rgba(34, 211, 238, 0.15);
     --tag-beach-text:   #22d3ee;
     --tag-shop-bg:      rgba(251, 113, 133, 0.15);
