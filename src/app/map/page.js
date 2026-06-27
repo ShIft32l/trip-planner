@@ -6,32 +6,27 @@ import { useLanguage } from "../../context/LanguageContext";
 import { CATEGORY_LIST } from "../../data/initialTripData";
 import styles from "./page.module.css";
 
-const FilterIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+const PinIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
   </svg>
 );
-
-const LocationIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-    <circle cx="12" cy="10" r="3"/>
+const CalendarIcon = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
   </svg>
 );
-
-const ExternalLinkIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: "4px", opacity: 0.7 }}>
-    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-    <polyline points="15 3 21 3 21 9"/>
-    <line x1="10" y1="14" x2="21" y2="3"/>
+const DirectionsIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="3 11 22 2 13 21 11 13 3 11"/>
   </svg>
 );
 
 export default function MapPage() {
   const { tripData, isLoaded } = useTrip();
   const { lang, t } = useLanguage();
-  const [dayFilter, setDayFilter] = useState("all");
-  const [typeFilter, setTypeFilter] = useState("all");
+  const [selectedDay, setSelectedDay] = useState("all");
+  const [selectedCategory, setSelectedCategory] = useState("all");
 
   if (!isLoaded) {
     return (
@@ -42,21 +37,23 @@ export default function MapPage() {
     );
   }
 
-  // Flatten all activities with their day info
-  const allDestinations = tripData.flatMap((day, index) =>
+  // Flatten all activities
+  const allActivities = tripData.flatMap((day) =>
     day.activities.map((act) => ({
       ...act,
-      dayIndex: index + 1,
+      dayId: day.id,
       dayTitle: lang === "vi" && day.title_vi ? day.title_vi : day.title,
+      dayDate: day.date,
     }))
   );
 
-  // Apply filters
-  const filtered = allDestinations.filter((dest) => {
-    if (dayFilter !== "all" && dest.dayIndex !== Number(dayFilter)) return false;
-    if (typeFilter !== "all" && dest.category !== typeFilter) return false;
-    return true;
+  const filtered = allActivities.filter((act) => {
+    const dayMatch = selectedDay === "all" || act.dayId === selectedDay;
+    const catMatch = selectedCategory === "all" || act.category === selectedCategory;
+    return dayMatch && catMatch;
   });
+
+  const uniqueCategories = [...new Set(allActivities.map((a) => a.category))];
 
   return (
     <main className="container animate-fade-in" style={{ paddingBottom: "100px" }}>
@@ -67,78 +64,108 @@ export default function MapPage() {
       </header>
 
       {/* Filters */}
-      <section className={styles.filtersWrapper}>
-        <div className={styles.filterGroup}>
-          <label className={styles.filterLabel}>
-            <FilterIcon /> {t.map.day}
-          </label>
-          <select 
-            className="form-input" 
-            value={dayFilter} 
-            onChange={(e) => setDayFilter(e.target.value)}
-          >
-            <option value="all">{t.map.allDays}</option>
+      <div className={styles.filters}>
+        {/* Day filter */}
+        <div className={styles.filterRow}>
+          <span className={styles.filterLabel}><CalendarIcon /> {t.map.day}</span>
+          <div className={styles.pills}>
+            <button
+              className={`${styles.pill} ${selectedDay === "all" ? styles.pillActive : ""}`}
+              onClick={() => setSelectedDay("all")}
+              id="filter-all-days"
+            >{t.map.allDays}</button>
             {tripData.map((d, i) => (
-              <option key={d.id} value={i + 1}>Day {i + 1}</option>
+              <button
+                key={d.id}
+                className={`${styles.pill} ${selectedDay === d.id ? styles.pillActive : ""}`}
+                onClick={() => setSelectedDay(d.id)}
+                id={`filter-day-${i + 1}`}
+              >Day {i + 1}</button>
             ))}
-          </select>
+          </div>
         </div>
-        
-        <div className={styles.filterGroup}>
-          <label className={styles.filterLabel}>
-            <FilterIcon /> {t.map.type}
-          </label>
-          <select 
-            className="form-input" 
-            value={typeFilter} 
-            onChange={(e) => setTypeFilter(e.target.value)}
-          >
-            <option value="all">{t.map.allTypes}</option>
-            {CATEGORY_LIST.map(({ key }) => (
-              <option key={key} value={key}>{t.categories[key] || key}</option>
-            ))}
-          </select>
-        </div>
-      </section>
 
-      {/* Results Header */}
-      <p style={{ margin: "1rem 0", color: "var(--text-muted)", fontSize: "0.85rem", fontWeight: 500 }}>
+        {/* Category filter */}
+        <div className={styles.filterRow}>
+          <span className={styles.filterLabel}>{t.map.type}</span>
+          <div className={styles.pills}>
+            <button
+              className={`${styles.pill} ${selectedCategory === "all" ? styles.pillActive : ""}`}
+              onClick={() => setSelectedCategory("all")}
+              id="filter-all-cats"
+            >{t.map.allTypes}</button>
+            {uniqueCategories.map((cat) => {
+              const label = t.categories[cat] || cat;
+              return (
+                <button
+                  key={cat}
+                  className={`${styles.pill} ${selectedCategory === cat ? styles.pillActive : ""}`}
+                  onClick={() => setSelectedCategory(cat)}
+                  id={`filter-cat-${cat}`}
+                >{label}</button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Count */}
+      <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginBottom: "1rem" }}>
         {t.map.destination(filtered.length)}
       </p>
 
-      {/* Places List */}
+      {/* Location cards */}
       <div className="stagger">
         {filtered.length === 0 ? (
           <div className="glass-card" style={{ textAlign: "center", padding: "2rem 1rem", color: "var(--text-muted)" }}>
             {t.map.noResults}
           </div>
         ) : (
-          filtered.map((dest) => {
-            const catLabel = t.categories[dest.category] || t.categories.sightseeing;
-            const displayTitle = lang === "vi" && dest.title_vi ? dest.title_vi : dest.title;
+          filtered.map((act) => {
+            const catLabel = t.categories[act.category] || act.category;
+            const dayIndex = tripData.findIndex((d) => d.id === act.dayId) + 1;
+            const displayTitle = lang === "vi" && act.title_vi ? act.title_vi : act.title;
+
             return (
-              <a
-                href={dest.mapsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                key={dest.id}
-                className={`glass-card ${styles.placeCard} animate-fade-in`}
-              >
-                <div className={styles.placeHeader}>
-                  <h3 className={styles.placeTitle}>
-                    {displayTitle} <ExternalLinkIcon />
-                  </h3>
-                  <span className={`tag tag-${dest.category || "sightseeing"}`}>{catLabel}</span>
+              <div key={`${act.dayId}-${act.id}`} className={`glass-card ${styles.locationCard} animate-fade-in`}>
+                {/* Day tag + category */}
+                <div className={styles.cardTop}>
+                  <span className={styles.dayTag}>Day {dayIndex}</span>
+                  <span className={`tag tag-${act.category}`}>{catLabel}</span>
+                  {act.completed && (
+                    <span className="badge badge-past">{t.common.done}</span>
+                  )}
                 </div>
-                <div className={styles.placeLocation}>
-                  <LocationIcon />
-                  <span>{dest.location}</span>
+
+                {/* Title + time */}
+                <h3 className={styles.locationTitle}>{displayTitle}</h3>
+
+                {/* Location */}
+                <div className={styles.locationRow}>
+                  <PinIcon />
+                  <span className={styles.locationName}>{act.location}</span>
                 </div>
-                <div className={styles.placeMeta}>
-                  <span className={styles.dayBadge}>Day {dest.dayIndex}</span>
-                  <span className={styles.timeBadge}>{dest.time} – {dest.endTime}</span>
+
+                {/* Time */}
+                <p className={styles.timeText}>{act.time} – {act.endTime}</p>
+
+                {/* Cost snippet */}
+                <div className={styles.bottomRow}>
+                  <span className={`${styles.costChip} ${act.cost === 0 ? styles.costFree : ""}`}>
+                    {act.cost === 0 ? t.common.free : `S$${act.cost}`}
+                  </span>
+
+                  <a
+                    href={act.mapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-primary"
+                    style={{ padding: "0.4rem 1rem", fontSize: "0.8rem", borderRadius: "50px", gap: "0.4rem" }}
+                  >
+                    <DirectionsIcon /> {t.common.getDir}
+                  </a>
                 </div>
-              </a>
+              </div>
             );
           })
         )}
