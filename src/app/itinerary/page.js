@@ -1,6 +1,7 @@
 "use client";
 
 import { useTrip } from "../../context/TripContext";
+import { useLanguage } from "../../context/LanguageContext";
 import ActivityCard from "../../components/ActivityCard";
 import styles from "./page.module.css";
 
@@ -15,12 +16,13 @@ const SunIcon = () => (
 
 export default function ItineraryPage() {
   const { tripData, isLoaded, getCurrentStatus } = useTrip();
+  const { lang, t } = useLanguage();
 
   if (!isLoaded) {
     return (
       <div className="loading-screen">
         <div className="loading-spinner" />
-        <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem" }}>Loading itinerary…</p>
+        <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem" }}>{t.common.loading}</p>
       </div>
     );
   }
@@ -32,8 +34,8 @@ export default function ItineraryPage() {
     <main className="container animate-fade-in">
       {/* Page header */}
       <header className="page-header" style={{ marginTop: "1rem" }}>
-        <h1 className="page-title neon-text">Timeline</h1>
-        <p className="page-subtitle">4-Day Singapore Adventure</p>
+        <h1 className="page-title neon-text">{t.timeline.title}</h1>
+        <p className="page-subtitle">{t.timeline.subtitle}</p>
       </header>
 
       {/* Days */}
@@ -43,9 +45,13 @@ export default function ItineraryPage() {
           const completedCount = day.activities.filter((a) => a.completed).length;
           const totalCount = day.activities.length;
           const pct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
-          const dateLabel = new Date(day.date + "T00:00:00").toLocaleDateString("en-SG", {
+          
+          const dateObj = new Date(day.date + "T00:00:00");
+          const localeStr = lang === "vi" ? "vi-VN" : "en-SG";
+          const dateLabel = dateObj.toLocaleDateString(localeStr, {
             weekday: "short", month: "short", day: "numeric",
           });
+          const displayTitle = lang === "vi" && day.title_vi ? day.title_vi : day.title;
 
           return (
             <section key={day.id} className={`${styles.daySection} animate-fade-in`}>
@@ -55,18 +61,18 @@ export default function ItineraryPage() {
                   <div className={styles.dayTop}>
                     {isToday && (
                       <span className={styles.todayPill}>
-                        <SunIcon /> Today
+                        <SunIcon /> {t.timeline.today}
                       </span>
                     )}
                     <span className={styles.dateStr}>{dateLabel}</span>
                   </div>
-                  <h2 className={styles.dayTitle}>{day.title}</h2>
+                  <h2 className={styles.dayTitle}>{displayTitle}</h2>
                 </div>
 
                 {/* Day progress */}
                 <div className={styles.dayProgress}>
                   <div className={styles.dayProgressHeader}>
-                    <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Progress</span>
+                    <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{t.timeline.progress}</span>
                     <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--accent-primary)" }}>
                       {completedCount}/{totalCount}
                     </span>

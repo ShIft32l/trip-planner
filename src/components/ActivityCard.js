@@ -3,6 +3,7 @@
 import { useState } from "react";
 import styles from "./ActivityCard.module.css";
 import { useTrip } from "../context/TripContext";
+import { useLanguage } from "../context/LanguageContext";
 import { CATEGORIES } from "../data/initialTripData";
 
 /* SVG icons */
@@ -41,6 +42,7 @@ const DotStatus = ({ isCurrent, isNext, completed }) => {
 
 export default function ActivityCard({ activity, dayId, isCurrent, isNext, isPast }) {
   const { toggleActivityCompletion } = useTrip();
+  const { lang, t } = useLanguage();
   const [expanded, setExpanded] = useState(isCurrent);
 
   const cat = CATEGORIES[activity.category] || CATEGORIES.sightseeing;
@@ -55,6 +57,10 @@ export default function ActivityCard({ activity, dayId, isCurrent, isNext, isPas
     e.stopPropagation();
     toggleActivityCompletion(dayId, activity.id);
   };
+
+  const displayTitle = lang === "vi" && activity.title_vi ? activity.title_vi : activity.title;
+  const displayNotes = lang === "vi" && activity.notes_vi ? activity.notes_vi : activity.notes;
+  const catLabel = t.categories[activity.category] || t.categories.sightseeing;
 
   return (
     <div className={`${styles.wrapper} animate-fade-in`}>
@@ -78,14 +84,14 @@ export default function ActivityCard({ activity, dayId, isCurrent, isNext, isPas
             <span className={styles.time}>{activity.time} – {activity.endTime}</span>
           </div>
           <div className={styles.badges}>
-            {isCurrent && <span className="badge badge-current">● Now</span>}
-            {isNext    && <span className="badge badge-next">Next</span>}
-            {completed && !isCurrent && !isNext && <span className="badge badge-past">Done</span>}
+            {isCurrent && <span className="badge badge-current">● {t.common.now}</span>}
+            {isNext    && <span className="badge badge-next">{t.common.next}</span>}
+            {completed && !isCurrent && !isNext && <span className="badge badge-past">{t.common.done}</span>}
           </div>
         </div>
 
         <h3 className={`${styles.title} ${completed ? styles.titleDone : ""}`}>
-          {activity.title}
+          {displayTitle}
         </h3>
 
         {/* Location + tag row */}
@@ -94,20 +100,20 @@ export default function ActivityCard({ activity, dayId, isCurrent, isNext, isPas
             <MapPinIcon /> {activity.location}
           </span>
           <span className={`tag tag-${activity.category || "sightseeing"}`}>
-            {cat.label}
+            {catLabel}
           </span>
         </div>
 
         {/* Expanded details */}
         {expanded && (
           <div className={styles.details} onClick={(e) => e.stopPropagation()}>
-            {activity.notes && (
-              <p className={styles.notes}>{activity.notes}</p>
+            {displayNotes && (
+              <p className={styles.notes}>{displayNotes}</p>
             )}
             <div className={styles.costRow}>
-              <span className={styles.costLabel}>Est. Cost</span>
+              <span className={styles.costLabel}>{t.common.estCost}</span>
               <span className={`${styles.cost} ${activity.cost === 0 ? styles.costFree : ""}`}>
-                {SGD(activity.cost)}
+                {activity.cost === 0 ? t.common.free : `S$${activity.cost}`}
               </span>
             </div>
             <div className={styles.actions}>
@@ -121,7 +127,7 @@ export default function ActivityCard({ activity, dayId, isCurrent, isNext, isPas
                 onClick={(e) => e.stopPropagation()}
               >
                 <DirectionsIcon />
-                Get Directions
+                {t.common.getDir}
               </a>
 
               {/* Complete toggle */}
@@ -132,9 +138,9 @@ export default function ActivityCard({ activity, dayId, isCurrent, isNext, isPas
                 aria-label={completed ? "Mark incomplete" : "Mark complete"}
               >
                 {completed ? (
-                  <><CheckIcon /> Done</>
+                  <><CheckIcon /> {t.common.done}</>
                 ) : (
-                  <>Mark Done</>
+                  <>{t.common.markDone}</>
                 )}
               </button>
             </div>

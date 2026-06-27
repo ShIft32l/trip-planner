@@ -29,6 +29,7 @@ const fmtShort = (n) => `S$${Number(n).toLocaleString()}`;
 
 export default function BudgetPage() {
   const { expenses, addExpense, deleteExpense, tripBudget, totalSpent, isLoaded } = useTrip();
+  const { t } = useLanguage();
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ name: "", amount: "", category: "food", notes: "" });
 
@@ -58,8 +59,8 @@ export default function BudgetPage() {
         {/* Header */}
         <header className="page-header" style={{ marginTop: "1rem", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
           <div>
-            <h1 className="page-title neon-text">Budget</h1>
-            <p className="page-subtitle">Singapore Trip Spend</p>
+            <h1 className="page-title neon-text">{t.budget.title}</h1>
+            <p className="page-subtitle">{t.budget.subtitle}</p>
           </div>
           <button
             id="add-expense-btn"
@@ -68,7 +69,7 @@ export default function BudgetPage() {
             aria-label="Add expense"
             style={{ borderRadius: "50px", padding: "0.65rem 1.1rem", gap: "0.35rem", fontSize: "0.85rem" }}
           >
-            <PlusIcon /> Add
+            <PlusIcon /> {t.common.add}
           </button>
         </header>
 
@@ -76,11 +77,11 @@ export default function BudgetPage() {
         <div className={`glass-card ${styles.summaryCard}`}>
           <div className={styles.summaryTop}>
             <div>
-              <p className={styles.summaryLabel}>Total Spent</p>
+              <p className={styles.summaryLabel}>{t.budget.totalSpent}</p>
               <p className={styles.summaryAmount}>{fmtShort(totalSpent)}</p>
             </div>
             <div style={{ textAlign: "right" }}>
-              <p className={styles.summaryLabel}>Remaining</p>
+              <p className={styles.summaryLabel}>{t.budget.remaining}</p>
               <p className={`${styles.summaryAmount} ${remaining < 0 ? styles.over : styles.under}`}>
                 {remaining < 0 ? "-" : ""}{fmtShort(Math.abs(remaining))}
               </p>
@@ -91,7 +92,7 @@ export default function BudgetPage() {
           <div style={{ marginTop: "1rem" }}>
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.4rem" }}>
               <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
-                {fmtShort(totalSpent)} of {fmtShort(totalBudget)} total budget
+                {t.budget.ofBudget(fmtShort(totalSpent), fmtShort(totalBudget))}
               </span>
               <span style={{ fontSize: "0.8rem", fontWeight: 700, color: pct > 90 ? "var(--accent-danger)" : "var(--accent-primary)" }}>
                 {pct}%
@@ -113,10 +114,11 @@ export default function BudgetPage() {
           {/* Category breakdown */}
           {expenses.length > 0 && (
             <div className={styles.breakdown}>
-              {CATEGORY_LIST.map(({ key, label }) => {
+              {CATEGORY_LIST.map(({ key }) => {
                 const catTotal = expenses.filter((e) => e.category === key).reduce((s, e) => s + Number(e.amount), 0);
                 if (catTotal === 0) return null;
                 const catPct = Math.round((catTotal / totalSpent) * 100);
+                const label = t.categories[key] || key;
                 return (
                   <div key={key} className={styles.breakdownRow}>
                     <span className={`tag tag-${key}`}>{label}</span>
@@ -134,25 +136,25 @@ export default function BudgetPage() {
         {/* === Recent Expenses === */}
         <section style={{ marginTop: "1.5rem" }}>
           <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "1rem" }}>
-            Recent Expenses
+            {t.budget.recent}
           </h2>
 
           {expenses.length === 0 ? (
             <div className={`glass-card ${styles.empty}`}>
               <p style={{ color: "var(--text-muted)", textAlign: "center" }}>
-                No expenses yet — tap <strong>Add</strong> to log your first spend!
+                {t.budget.noExpenses}
               </p>
             </div>
           ) : (
             <div className="stagger">
               {expenses.map((exp) => {
-                const cat = CATEGORIES[exp.category] || CATEGORIES.sightseeing;
+                const catLabel = t.categories[exp.category] || t.categories.sightseeing;
                 return (
                   <div key={exp.id} className={`glass-card ${styles.expenseRow} animate-fade-in`}>
                     <div className={styles.expLeft}>
                       <p className={styles.expName}>{exp.name}</p>
                       {exp.notes && <p className={styles.expNotes}>{exp.notes}</p>}
-                      <span className={`tag tag-${exp.category || "sightseeing"}`}>{cat.label}</span>
+                      <span className={`tag tag-${exp.category || "sightseeing"}`}>{catLabel}</span>
                     </div>
                     <div className={styles.expRight}>
                       <p className={styles.expAmount}>{fmt(exp.amount)}</p>
@@ -180,7 +182,7 @@ export default function BudgetPage() {
           <div className="modal-sheet" onClick={(e) => e.stopPropagation()} id="expense-modal">
             <div className="modal-handle" />
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem" }}>
-              <h2 style={{ fontSize: "1.1rem", fontWeight: 700 }}>Log Expense</h2>
+              <h2 style={{ fontSize: "1.1rem", fontWeight: 700 }}>{t.budget.addExpense}</h2>
               <button onClick={() => setShowModal(false)} style={{ color: "var(--text-muted)", cursor: "pointer", padding: "4px" }} aria-label="Close">
                 <CloseIcon />
               </button>
@@ -189,7 +191,7 @@ export default function BudgetPage() {
             <form onSubmit={handleAdd} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
               {/* Amount */}
               <div>
-                <label className="form-label" htmlFor="exp-amount">Amount (SGD)</label>
+                <label className="form-label" htmlFor="exp-amount">{t.common.amount}</label>
                 <input
                   id="exp-amount"
                   type="number"
@@ -206,11 +208,11 @@ export default function BudgetPage() {
 
               {/* Description */}
               <div>
-                <label className="form-label" htmlFor="exp-name">Description</label>
+                <label className="form-label" htmlFor="exp-name">{t.common.description}</label>
                 <input
                   id="exp-name"
                   type="text"
-                  placeholder="What did you spend on?"
+                  placeholder={t.budget.whatSpentOn}
                   required
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -220,9 +222,9 @@ export default function BudgetPage() {
 
               {/* Category */}
               <div>
-                <label className="form-label">Category</label>
+                <label className="form-label">{t.common.category}</label>
                 <div className={styles.catGrid}>
-                  {CATEGORY_LIST.map(({ key, label }) => (
+                  {CATEGORY_LIST.map(({ key }) => (
                     <button
                       key={key}
                       type="button"
@@ -230,7 +232,7 @@ export default function BudgetPage() {
                       className={`${styles.catBtn} ${form.category === key ? styles.catBtnActive : ""}`}
                       onClick={() => setForm({ ...form, category: key })}
                     >
-                      <span className={`tag tag-${key}`}>{label}</span>
+                      <span className={`tag tag-${key}`}>{t.categories[key] || key}</span>
                     </button>
                   ))}
                 </div>
@@ -238,7 +240,7 @@ export default function BudgetPage() {
 
               {/* Notes */}
               <div>
-                <label className="form-label" htmlFor="exp-notes">Notes (optional)</label>
+                <label className="form-label" htmlFor="exp-notes">{t.common.notes} (optional)</label>
                 <input
                   id="exp-notes"
                   type="text"
@@ -250,7 +252,7 @@ export default function BudgetPage() {
               </div>
 
               <button type="submit" className="btn btn-primary" id="submit-expense-btn" style={{ width: "100%", marginTop: "0.5rem", borderRadius: "12px" }}>
-                Save Expense
+                {t.common.save}
               </button>
             </form>
           </div>

@@ -59,6 +59,7 @@ function useTripCountdown(startDate) {
 
 export default function TodayPage() {
   const { isLoaded, getCurrentStatus, darkMode, toggleDarkMode, tripData } = useTrip();
+  const { lang, toggleLang, t } = useLanguage();
   const [status, setStatus] = useState(null);
   const [now, setNow] = useState(new Date());
 
@@ -80,7 +81,7 @@ export default function TodayPage() {
     return (
       <div className="loading-screen">
         <div className="loading-spinner" />
-        <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem" }}>Loading…</p>
+        <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem" }}>{t.common.loading}</p>
       </div>
     );
   }
@@ -99,40 +100,47 @@ export default function TodayPage() {
   const dayIndex = tripData.findIndex((d) => d.date === todayStr);
   const isOnTrip = dayIndex !== -1;
 
+  const LangToggle = () => (
+    <button onClick={toggleLang} className={styles.langBtn} aria-label="Toggle language">
+      {lang === "en" ? "VN" : "EN"}
+    </button>
+  );
+
   // Pre-trip view
   if (!isOnTrip && daysUntil !== null && daysUntil > 0) {
     return (
       <main className="container animate-fade-in">
         <header className={styles.topBar}>
           <div>
-            <h1 className={styles.greeting}><span className="neon-text">SG Trip</span></h1>
+            <h1 className={styles.greeting}><span className="neon-text">{t.today.tripTitle}</span></h1>
             <p className={styles.subDate}><CalendarIcon /> {dateStr}</p>
           </div>
-          <button id="dark-mode-toggle" className={styles.themeBtn} onClick={toggleDarkMode} aria-label="Toggle dark mode">
-            {darkMode ? <SunIcon /> : <MoonIcon />}
-          </button>
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            <LangToggle />
+            <button id="dark-mode-toggle" className={styles.themeBtn} onClick={toggleDarkMode} aria-label="Toggle dark mode">
+              {darkMode ? <SunIcon /> : <MoonIcon />}
+            </button>
+          </div>
         </header>
 
         {/* Countdown */}
         <div className={`glass-card ${styles.countdownCard}`}>
           <div className={styles.countdownTop}>
             <PlaneIcon />
-            <span className={styles.countdownLabel}>Your trip starts in</span>
+            <span className={styles.countdownLabel}>{t.today.tripCountdown}</span>
           </div>
           <div className={styles.countdownNum}>{daysUntil}</div>
-          <div className={styles.countdownUnit}>days</div>
-          <p className={styles.countdownDate}>
-            10 Jul – 13 Jul 2026 · Singapore 🇸🇬
-          </p>
+          <div className={styles.countdownUnit}>{t.today.days}</div>
+          <p className={styles.countdownDate}>{t.today.tripDates}</p>
         </div>
 
         {/* Flight info */}
         <div className={styles.flightSection}>
-          <h2 className={styles.sectionTitle}>Your Flights</h2>
+          <h2 className={styles.sectionTitle}>{t.today.yourFlights}</h2>
           <div className={`glass-card ${styles.flightCard}`}>
             <div className={styles.flightRow}>
               <div className={styles.flightInfo}>
-                <span className={`tag tag-transport`}>Outbound</span>
+                <span className={`tag tag-transport`}>{t.today.outbound}</span>
                 <p className={styles.flightRoute}>SGN → SIN</p>
                 <p className={styles.flightDetail}>VietJet Air · Fri 10 Jul · 11:10</p>
                 <p className={styles.flightAirport}>Tan Son Nhat Intl Airport</p>
@@ -143,7 +151,7 @@ export default function TodayPage() {
           <div className={`glass-card ${styles.flightCard}`} style={{ marginTop: "0.75rem" }}>
             <div className={styles.flightRow}>
               <div className={styles.flightInfo}>
-                <span className={`tag tag-transport`}>Return</span>
+                <span className={`tag tag-transport`}>{t.today.return}</span>
                 <p className={styles.flightRoute}>SIN → SGN</p>
                 <p className={styles.flightDetail}>Vietnam Airlines · Mon 13 Jul · 18:25</p>
                 <p className={styles.flightAirport}>Changi International Airport</p>
@@ -161,19 +169,24 @@ export default function TodayPage() {
     return (
       <main className="container animate-fade-in">
         <header className={styles.topBar}>
-          <h1 className={styles.greeting}><span className="neon-text">Trip Complete!</span></h1>
-          <button id="dark-mode-toggle" className={styles.themeBtn} onClick={toggleDarkMode} aria-label="Toggle dark mode">
-            {darkMode ? <SunIcon /> : <MoonIcon />}
-          </button>
+          <h1 className={styles.greeting}><span className="neon-text">{t.today.tripDone}</span></h1>
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            <LangToggle />
+            <button id="dark-mode-toggle" className={styles.themeBtn} onClick={toggleDarkMode} aria-label="Toggle dark mode">
+              {darkMode ? <SunIcon /> : <MoonIcon />}
+            </button>
+          </div>
         </header>
         <div className={`glass-card ${styles.doneCard}`}>
           <CheckCircleIcon />
-          <h2>Singapore Adventure Done!</h2>
-          <p>Hope you had an amazing time in the Lion City.</p>
+          <h2>{t.today.tripDone}</h2>
+          <p>{t.today.tripDoneMsg}</p>
         </div>
       </main>
     );
   }
+
+  const displayDayTitle = lang === "vi" && todayData.title_vi ? todayData.title_vi : todayData.title;
 
   // ── On-trip view ──────────────────────────────────────────────
   return (
@@ -182,7 +195,7 @@ export default function TodayPage() {
       <header className={styles.topBar}>
         <div>
           <h1 className={styles.greeting}>
-            <span className="neon-text">Today</span>
+            <span className="neon-text">{t.today.title}</span>
             <span className={styles.dayBadge}>Day {dayIndex + 1}</span>
           </h1>
           <p className={styles.subDate}><CalendarIcon /> {dateStr}</p>
@@ -192,9 +205,12 @@ export default function TodayPage() {
             <ClockIcon />
             <span>{timeStr}</span>
           </div>
-          <button id="dark-mode-toggle" className={styles.themeBtn} onClick={toggleDarkMode} aria-label="Toggle dark mode">
-            {darkMode ? <SunIcon /> : <MoonIcon />}
-          </button>
+          <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.25rem" }}>
+            <LangToggle />
+            <button id="dark-mode-toggle" className={styles.themeBtn} onClick={toggleDarkMode} aria-label="Toggle dark mode">
+              {darkMode ? <SunIcon /> : <MoonIcon />}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -203,8 +219,8 @@ export default function TodayPage() {
         <div className={`glass-card ${styles.progressCard}`}>
           <div className={styles.progressHeader}>
             <div>
-              <p className={styles.progressLabel}>Today&apos;s Progress</p>
-              <p className={styles.progressSub}>{todayData.title}</p>
+              <p className={styles.progressLabel}>{t.today.todayProgress}</p>
+              <p className={styles.progressSub}>{displayDayTitle}</p>
             </div>
             <span className={styles.progressPct}>{pct}%</span>
           </div>
@@ -212,7 +228,7 @@ export default function TodayPage() {
             <div className="progress-bar-fill" style={{ width: `${pct}%` }} />
           </div>
           <p style={{ fontSize: "0.73rem", color: "var(--text-muted)", marginTop: "0.5rem" }}>
-            {completedCount} of {totalCount} activities completed
+            {t.today.activitiesDone(completedCount, totalCount)}
           </p>
         </div>
       )}
@@ -224,7 +240,7 @@ export default function TodayPage() {
           <div className={styles.sectionBlock}>
             <h2 className={styles.sectionTitle}>
               <span className={styles.nowDot} />
-              Happening Now
+              {t.today.happeningNow}
             </h2>
             {currentActivity ? (
               <ActivityCard
@@ -236,8 +252,8 @@ export default function TodayPage() {
               <div className={`glass-card ${styles.emptySlot}`}>
                 <p>
                   {nextActivity
-                    ? "Free time right now — next activity coming up!"
-                    : "All done for today! Enjoy your evening 🌙"}
+                    ? t.today.freeTime
+                    : t.today.allDone}
                 </p>
               </div>
             )}
@@ -248,7 +264,7 @@ export default function TodayPage() {
             <div className={styles.sectionBlock}>
               <h2 className={styles.sectionTitle}>
                 <span className={styles.nextDot} />
-                Up Next
+                {t.today.upNext}
               </h2>
               <ActivityCard
                 activity={nextActivity}
@@ -262,7 +278,7 @@ export default function TodayPage() {
           {previousActivity && !currentActivity && (
             <div className={styles.sectionBlock}>
               <h2 className={styles.sectionTitle} style={{ color: "var(--text-muted)" }}>
-                Just Finished
+                {t.today.justFinished}
               </h2>
               <ActivityCard
                 activity={previousActivity}
@@ -274,8 +290,8 @@ export default function TodayPage() {
         </section>
       ) : (
         <div className={`glass-card ${styles.noSchedule}`}>
-          <h2>No schedule for today</h2>
-          <p>Check the Timeline tab for the full itinerary.</p>
+          <h2>{t.today.noSchedule}</h2>
+          <p>{t.today.noScheduleMsg}</p>
         </div>
       )}
     </main>

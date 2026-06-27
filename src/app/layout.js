@@ -1,11 +1,12 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { TripProvider } from "../context/TripContext";
+import { LanguageProvider } from "../context/LanguageContext";
 import BottomNavigation from "../components/BottomNavigation";
 import ThemeProvider from "../components/ThemeProvider";
 
 const inter = Inter({
-  subsets: ["latin"],
+  subsets: ["latin", "vietnamese"],
   variable: "--font-inter",
   display: "swap",
 });
@@ -34,10 +35,12 @@ export default function RootLayout({ children }) {
     <html lang="en" className={inter.variable} data-scroll-behavior="smooth" suppressHydrationWarning>
       <body>
         <ThemeProvider>
-          <TripProvider>
-            {children}
-            <BottomNavigation />
-          </TripProvider>
+          <LanguageProvider>
+            <TripProvider>
+              {children}
+              <BottomNavigation />
+            </TripProvider>
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import styles from "./BottomNavigation.module.css";
+import { useLanguage } from "../context/LanguageContext";
 
 /* SVG Icons — no emojis */
 const TodayIcon = ({ active }) => (
@@ -38,25 +39,27 @@ const MapIcon = ({ active }) => (
   </svg>
 );
 
-const navItems = [
-  { name: "Today",    path: "/",          Icon: TodayIcon },
-  { name: "Timeline", path: "/itinerary", Icon: TimelineIcon },
-  { name: "Budget",   path: "/budget",    Icon: BudgetIcon },
-  { name: "Map",      path: "/map",       Icon: MapIcon },
+const navConfig = [
+  { key: "today",    path: "/",          Icon: TodayIcon },
+  { key: "timeline", path: "/itinerary", Icon: TimelineIcon },
+  { key: "budget",   path: "/budget",    Icon: BudgetIcon },
+  { key: "map",      path: "/map",       Icon: MapIcon },
 ];
 
 export default function BottomNavigation() {
   const pathname = usePathname();
+  const { t } = useLanguage();
 
   return (
     <nav className={styles.nav} aria-label="Main navigation">
-      {navItems.map(({ name, path, Icon }) => {
+      {navConfig.map(({ key, path, Icon }) => {
         const active = pathname === path;
+        const name = t.nav[key];
         return (
           <Link
             href={path}
-            key={name}
-            id={`nav-${name.toLowerCase()}`}
+            key={key}
+            id={`nav-${key}`}
             className={`${styles.item} ${active ? styles.active : ""}`}
             aria-current={active ? "page" : undefined}
           >
