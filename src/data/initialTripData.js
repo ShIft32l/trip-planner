@@ -8,6 +8,8 @@ export const CATEGORIES = {
   flight:      { label: "Flight",      className: "tag-transport",   icon: "flight" },
 };
 
+export const CATEGORY_LIST = Object.entries(CATEGORIES).map(([key, val]) => ({ key, ...val }));
+
 export const TRIP_CONFIG = {
   totalBudget: 1500,   // SGD
   dailyBudget: 300,    // SGD per day

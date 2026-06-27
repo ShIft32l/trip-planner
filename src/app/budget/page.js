@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useTrip } from "../../context/TripContext";
-import { CATEGORIES } from "../../data/initialTripData";
+import { useLanguage } from "../../context/LanguageContext";
+import { CATEGORIES, CATEGORY_LIST } from "../../data/initialTripData";
 import styles from "./page.module.css";
 
 /* SVG icons */
@@ -21,8 +22,6 @@ const CloseIcon = () => (
     <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
   </svg>
 );
-
-const CATEGORY_LIST = Object.entries(CATEGORIES).map(([key, val]) => ({ key, ...val }));
 
 const fmt = (n) => `S$${Number(n).toFixed(2)}`;
 const fmtShort = (n) => `S$${Number(n).toLocaleString()}`;
