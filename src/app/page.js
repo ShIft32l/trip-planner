@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useTrip } from "../context/TripContext";
+import { useLanguage } from "../context/LanguageContext";
 import ActivityCard from "../components/ActivityCard";
 import styles from "./page.module.css";
 
