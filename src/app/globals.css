@@ -296,7 +296,7 @@ input, select, textarea {
   border-radius: 50px;
   font-size: 0.8rem;
   font-weight: 700;
-  background: linear-gradient(135deg, var(--accent-primary), var(--emerald-700));
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-neon));
   color: white;
   cursor: pointer;
   border: none;
